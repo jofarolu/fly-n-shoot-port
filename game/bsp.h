@@ -5,7 +5,7 @@
 *                   SISTEMAS OPERATIVOS EN TIEMPO REAL.
 *                             Periodo 20/1
 *
-* Port de juego Fly'n'Shoot (Quantum Leaps) para plataforma MaRTE OS
+* Port de juego Fly'n'Shoot (Quantum Leaps) para GNU/Linux con ncurses
 *
 * Autores de port:
 * José Fausto Romero Lujambio
@@ -57,15 +57,10 @@ void BSP_updateScore(uint16_t score);
 void BSP_displayOn(void);
 void BSP_displayOff(void);
 
-/* Port de MarteOS */
-#include <vga.h>
+/* Port de ncurses */
 #include <assert.h> // assert
-#include <time.h>   // timespec, nanosleep
-#include <misc/timespec_operations.h> // double_to_timespec
-#include <misc/console_management.h> // reset_blocking.. set_raw_mode
-#include <string.h> //memset
+#include <string.h> // memset
 #include <stdbool.h>
-#include "fonts.h"
 
 #define PCI_DEVICE_ID_S3_TRIO64V2 35073
 

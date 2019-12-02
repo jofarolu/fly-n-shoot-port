@@ -5,7 +5,7 @@
 *                   SISTEMAS OPERATIVOS EN TIEMPO REAL.
 *                             Periodo 20/1
 *
-* Port de juego Fly'n'Shoot (Quantum Leaps) para plataforma MaRTE OS
+* Port de juego Fly'n'Shoot (Quantum Leaps) para GNU/Linux con ncurses
 *
 * Autores de port:
 * José Fausto Romero Lujambio
@@ -45,17 +45,16 @@
 *                          http://www.state-machine.com
 * e-mail:                  info@quantum-leaps.com
 *****************************************************************************/
+#include <unistd.h>
+#include <pthread.h>
+
 #include "qp_port.h"
 #include "bsp.h"
 #include "game.h"
 #include "video.h"
 
-#include <stdlib.h>
-#include <pthread.h>
-
-/* Port de MaRTE OS */
+/* Port de ncurses */
 extern int screenWidth,screenHeight;
-extern unsigned char *backBuffer;
 
 volatile int thread_signal;
 static pthread_t event_thread, kernel_thread;
@@ -86,16 +85,7 @@ static QSubscrList    l_subscrSto[MAX_PUB_SIG];
 
 /*..........................................................................*/
 void *kernel_thread_handler(void *status) {
-    double kernel_interval;
-    struct timespec kernel_ts;
     int *thread_status = (int *) status;
-
-    /** este intervalo es crítico para el funcionamiento del kernel **/
-    /* el intervalo del kernel debe ser significativamente menor al intervalo
-     * del hilo de eventos, pero existir (no puede ser omitido o ser 0). */
-    kernel_interval = 0.1e-3;
-    double_to_timespec(kernel_interval, &kernel_ts);
-
     for (;;) {
         if (*thread_status == 1)
             break;
@@ -103,20 +93,15 @@ void *kernel_thread_handler(void *status) {
         // ejecutar bucle de eventos del kernel QP
         QF_run_event_loop();
 
-        // ESTA LÍNEA ES CRÍTICA PARA EL FUNCIONAMIENTO CORRECTO DEL KERNEL
-        nanosleep(&kernel_ts, NULL);
+        // ESTA LÍNEA ES CRÍTICA PARA EL FUNCIONAMIENTO DEL KERNEL
+        usleep(10); // retardo de procesamiento de kernel
     }
     return NULL;
 }
 /*..........................................................................*/
 void *event_thread_handler(void *status) {
-    double event_interval;
-    struct timespec event_ts;
     int *thread_status = (int *) status;
-
-    event_interval = 1.0 / BSP_TICKS_PER_SEC;
-    double_to_timespec(event_interval, &event_ts);
-
+    double period = 1.0/BSP_TICKS_PER_SEC;
     for (;;) {
         // procesar señales de control
         if (*thread_status == 1)
@@ -131,7 +116,7 @@ void *event_thread_handler(void *status) {
 
         // dibujar pantalla
         Video_render();
-        nanosleep(&event_ts, NULL);
+        usleep(period * 1e6);
     }
     print_exit_screen();
     return NULL;
@@ -148,30 +133,24 @@ void print_exit_screen(void) {
 }
 /*..........................................................................*/
 int main(int argc, char *argv[]) {
-    /* Inicializar MaRTE OS */
-    //make getchar() non-blocking:
-    reset_blocking_mode();
-    set_raw_mode();
+    /* inicializar ncurses */
+    initscr(); // iniciar pantalla
+    curs_set(0); // ocultar cursor
 
-    /* inicializar vga y emulador de terminal */
-    screenWidth=320;
-    screenHeight=200;
-    int ret = init_vga(G320x200x256, VGA, PCI_DEVICE_ID_S3_TRIO64V2);
-    assert (ret == 0);
-    (void) ret;
+    // configurar teclado
+    timeout(0); cbreak(); noecho();
+    nodelay(stdscr, TRUE); scrollok(stdscr, TRUE);
 
-    //virtual canvas for blitting
-    backBuffer = (unsigned char *)malloc(screenWidth*screenHeight);
-    memset(backBuffer, 0, screenWidth*screenHeight);
-    init_terminal_buffer();
-
-    initPalette(); //fill palette's colors
-    /* fin de inicialización de MaRTE OS */
+    // configurar colores y limpiar pantalla
+    init_color_pairs();
+    clear(); refresh();
 
     /* explicitly invoke the active objects' ctors... */
     Missile_ctor();
     Ship_ctor();
     Tunnel_ctor();
+
+    BSP_init(argc, argv);           /* initialize the Board Support Package */
 
     QF_init();     /* initialize the framework and the underlying RT kernel */
 
@@ -208,13 +187,14 @@ int main(int argc, char *argv[]) {
                   (void *)0, 0,                      /* no per-thread stack */
                   (QEvt *)0);                  /* no initialization event */
 
-    BSP_init(argc, argv);           /* initialize the Board Support Package */
-
     /* hilos de programa */
     pthread_create(&kernel_thread, NULL, kernel_thread_handler, (void *)&thread_signal);
     pthread_create(&event_thread, NULL, event_thread_handler, (void *)&thread_signal);
     pthread_join(kernel_thread, NULL);
     pthread_join(event_thread, NULL);
 
+    // esperar la entrada del usuario
+    timeout(-1); getch(); clear(); refresh();
+    endwin(); // terminar ncurses
     return 0;
 }

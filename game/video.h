@@ -5,7 +5,7 @@
 *                   SISTEMAS OPERATIVOS EN TIEMPO REAL.
 *                             Periodo 20/1
 *
-* Port de juego Fly'n'Shoot (Quantum Leaps) para plataforma MaRTE OS
+* Port de juego Fly'n'Shoot (Quantum Leaps) para GNU/Linux con ncurses
 *
 * Autores de port:
 * José Fausto Romero Lujambio
@@ -41,38 +41,36 @@
 #ifndef video_h
 #define video_h
 
-/* Port de MaRTE OS */
-#include <vga.h>
+#include <curses.h>
 #include <stdbool.h>
-#include "fonts.h"
 
 /*..........................................................................*/
 enum VideoColor {
     /* foreground */
     VIDEO_FGND_BLACK        = 0x00,
-    VIDEO_FGND_BLUE         = 0x01,
+    VIDEO_FGND_RED          = 0x01,
     VIDEO_FGND_GREEN        = 0x02,
-    VIDEO_FGND_CYAN         = 0x03,
-    VIDEO_FGND_RED          = 0x04,
+    VIDEO_FGND_BROWN        = 0x03,
+    VIDEO_FGND_BLUE         = 0x04,
     VIDEO_FGND_PURPLE       = 0x05,
-    VIDEO_FGND_BROWN        = 0x06,
+    VIDEO_FGND_CYAN         = 0x06,
     VIDEO_FGND_LIGHT_GRAY   = 0x07,
     VIDEO_FGND_DARK_GRAY    = 0x08,
-    VIDEO_FGND_LIGHT_BLUE   = 0x09,
+    VIDEO_FGND_LIGHT_RED    = 0x09,
     VIDEO_FGND_LIGHT_GREEN  = 0x0A,
-    VIDEO_FGND_LIGHT_CYAN   = 0x0B,
-    VIDEO_FGND_LIGHT_RED    = 0x0C,
+    VIDEO_FGND_YELLOW       = 0x0B,
+    VIDEO_FGND_LIGHT_BLUE   = 0x0C,
     VIDEO_FGND_LIGHT_PURPLE = 0x0D,
-    VIDEO_FGND_YELLOW       = 0x0E,
+    VIDEO_FGND_LIGHT_CYAN   = 0x0E,
     VIDEO_FGND_WHITE        = 0x0F,
     /* background */
     VIDEO_BGND_BLACK        = 0x00,
-    VIDEO_BGND_BLUE         = 0x10,
+    VIDEO_BGND_RED          = 0x10,
     VIDEO_BGND_GREEN        = 0x20,
-    VIDEO_BGND_CYAN         = 0x30,
-    VIDEO_BGND_RED          = 0x40,
+    VIDEO_BGND_BROWN        = 0x30,
+    VIDEO_BGND_BLUE         = 0x40,
     VIDEO_BGND_PURPLE       = 0x50,
-    VIDEO_BGND_BROWN        = 0x60,
+    VIDEO_BGND_CYAN         = 0x60,
     VIDEO_BGND_LIGHT_GRAY   = 0x70,
 
     VIDEO_BLINK             = 0x80,
@@ -93,15 +91,13 @@ void Video_drawBitmapAt(uint8_t x, uint8_t y,
 /*..........................................................................*/
 void Video_drawStringAt(uint8_t x, uint8_t y, char const *str);
 
-/* Port de MaRTE OS */
+/* Port de ncurses */
 int screenWidth,screenHeight;
-unsigned char *backBuffer;
-
 void Video_render(void);
 
 void clear_terminal_buffer(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2);
 void init_terminal_buffer(void);
-void blit(void);
+void init_color_pairs(void);
 
 #endif                                                           /* video_h */
 

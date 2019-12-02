@@ -63,7 +63,7 @@
     * configure the ::QEQueueCtr type. Here the macro is not defined so the
     * default of 1 byte is chosen.
     */
-    #define QF_EQUEUE_CTR_SIZE 4
+    #define QF_EQUEUE_CTR_SIZE 1
 #endif
 #if (QF_EQUEUE_CTR_SIZE == 1)
 

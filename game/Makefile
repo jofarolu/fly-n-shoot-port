@@ -1,20 +1,26 @@
-.PHONY: clean default flynshoot.exe
+.PHONY: clean default flynshoot
 
-CC = mgcc
+ifeq ($(OS),Windows_NT)
+CC = x86_64-w64-mingw32-gcc
+AR = x86_64-w64-mingw32-ar
+
+else
+CC = gcc
 AR = ar
-STRIP = strip
-CFLAGS = -Wall -Wextra -I$(MARTE)/arch/drivers/svga -I ../port -I ../include
-OFLAGS = -s -Os -DNDEBUG
-LDFLAGS = -lsvga
 
-default: flynshoot.exe
+endif
 
-flynshoot.exe:
+CFLAGS = -Wall -I ../port -I ../include
+OFLAGS = -s -O3
+LDFLAGS = -lncursesw -lpthread
+
+default: flynshoot
+
+flynshoot:
 	$(CC) $(CFLAGS) $(OFLAGS) ../qep/source/*.c ../qf/source/*.c *.c $(LDFLAGS) -o $@;
-	$(STRIP) --strip-all $@
 
 clean:
 	@exec echo -e "\n>> Cleaning... ";
 	@find \( -name '*.[oa]' -or -name '*~*' -or -name '*.ali' -or -name '*.log' \
-		-or -name '*.exe' -or -name 'mprogram' -or -name 'a.out' \) -print -delete
+		-or -name 'flynshoot' -or -name 'flynshoot.exe' -or -name 'mprogram' -or -name 'a.out' \) -print -delete
 	@exec echo ">> End Cleaning"

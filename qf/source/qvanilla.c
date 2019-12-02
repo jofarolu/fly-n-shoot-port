@@ -5,7 +5,7 @@
 *                   SISTEMAS OPERATIVOS EN TIEMPO REAL.
 *                             Periodo 20/1
 *
-* Port de juego Fly'n'Shoot (Quantum Leaps) para plataforma MaRTE OS
+* Port de juego Fly'n'Shoot (Quantum Leaps) para GNU/Linux con ncurses
 *
 * Autores de port:
 * José Fausto Romero Lujambio

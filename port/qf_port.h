@@ -39,18 +39,27 @@
 #define QF_MAX_ACTIVE               63
 
                                             /* DOS interrupt disable/enable */
+// #define QF_INT_DISABLE()            _disable()
+// #define QF_INT_ENABLE()             _enable()
 #define QF_INT_DISABLE()
 #define QF_INT_ENABLE()
 
                                          /* DOS critical section entry/exit */
 /* QF_CRIT_STAT_TYPE not defined */
+// #define QF_CRIT_ENTRY(dummy)        _disable()
+// #define QF_CRIT_EXIT(dummy)         _enable()
 #define QF_CRIT_ENTRY(dummy)
 #define QF_CRIT_EXIT(dummy)
 
                                                       /* DOS ISR entry/exit */
-#define QF_ISR_ENTRY()
-#define QF_ISR_EXIT()
+#define QF_ISR_ENTRY()              _enable()
+#define QF_ISR_EXIT() do {\
+    _disable(); \
+    outp(0x20, 0x20); \
+} while (0)
 
+
+// #include <i86.h>                                /* for _disable()/_enable() */
 
 #include "qep_port.h"                                           /* QEP port */
 #include "qvanilla.h"                   /* The "Vanilla" cooperative kernel */
