@@ -1,0 +1,5 @@
+.vs/
+.vscode/
+*.o
+*.exe
+*.dll
